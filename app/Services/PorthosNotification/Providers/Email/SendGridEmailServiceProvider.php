@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Services\PorthosNotification\Contracts\Email;
+namespace App\Services\PorthosNotification\Providers\Email;
 
+use App\Services\PorthosNotification\Contracts\Email\EmailProviderInterface;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use SendGrid;
