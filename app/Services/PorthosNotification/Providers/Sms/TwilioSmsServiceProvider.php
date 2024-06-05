@@ -12,14 +12,8 @@ class TwilioSmsServiceProvider implements SmsProviderInterface
 {
     //TODO Put config files to a config file
 
-    private $twilioClient;
-
-    public function __construct()
+    public function __construct(private Client $twilioClient)
     {
-        $this->twilioClient = new Client(
-            env('TWILIO_SID'),
-            env('TWILIO_TOKEN')
-        );
     }
 
     public function send(string $recipient, string $message): bool

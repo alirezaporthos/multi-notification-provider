@@ -9,14 +9,9 @@ use Plivo\RestClient;
 
 class PlivoSmsServiceProvider implements SmsProviderInterface
 {
-    private $plivoClient;
 
-    public function __construct()
+    public function __construct(private RestClient $plivoClient)
     {
-        $this->plivoClient = new RestClient(
-            env('PLIVO_AUTH_TOKEN'),
-            env('PLIVO_PHONE_NUMBER')
-        );
     }
 
 

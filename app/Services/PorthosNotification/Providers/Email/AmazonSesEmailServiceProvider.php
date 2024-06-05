@@ -9,18 +9,9 @@ use Illuminate\Support\Facades\Log;
 
 class AmazonSesEmailServiceProvider implements EmailProviderInterface
 {
-    private $sesClient;
 
-    public function __construct()
+    public function __construct(private SesClient $sesClient)
     {
-        $this->sesClient = new SesClient([
-            'version' => 'latest',
-            'region'  => 'us-west-2',
-            'credentials' => [
-                'key'    => env('AWS_ACCESS_KEY_ID'),
-                'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            ],
-        ]);
     }
 
     //TODO check the recipent of other providers and look for a type for all if possible

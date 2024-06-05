@@ -10,12 +10,9 @@ use SendGrid\Mail\Mail;
 
 class SendGridEmailServiceProvider implements EmailProviderInterface
 {
-    private SendGrid $sendGridClient;
 
-    public function __construct()
+    public function __construct(private SendGrid $sendGridClient)
     {
-        //TODO move this to a service provider for constructor dependency injection
-        $this->sendGridClient = new SendGrid(env('SENDGRID_API_KEY'));
     }
 
     public function send($recipent, string $subject, string $body): bool
