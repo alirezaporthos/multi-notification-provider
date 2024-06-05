@@ -22,7 +22,7 @@ class TwilioSmsServiceProvider implements SmsProviderInterface
         );
     }
 
-    public function send($message, $recipient): bool
+    public function send(string $recipient, string $message): bool
     {
         try {
             $response = $this->twilioClient->messages->create(
