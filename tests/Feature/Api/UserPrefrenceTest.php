@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
+use App\Models\UserPrefrence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -37,5 +38,19 @@ class UserPrefrenceTest extends TestCase
         $response->assertJsonValidationErrors([
             'notification_prefrences.0'
         ]);
+    }
+
+    public function test_can_update_user_prefrences()
+    {
+        $userPrefrence = UserPrefrence::factory()->create();
+
+        $updatedData = [
+            'notification_prefrences' => $userPrefrence->notification_prefrences == ['email'] ? ['sms'] : ['email'],
+        ];
+
+        $response = $this->putJson("/api/users/{$userPrefrence->user->id}/user-prefrences/{$userPrefrence->id}", $updatedData);
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment($updatedData);
     }
 }
