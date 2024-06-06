@@ -9,6 +9,7 @@
         "aws/aws-sdk-php": "^3.309",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^11.9",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "laravel/vonage-notification-channel": "^3.3",
         "plivo/plivo-php": "^4.64",
