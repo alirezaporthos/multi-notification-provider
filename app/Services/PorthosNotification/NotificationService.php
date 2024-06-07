@@ -50,7 +50,7 @@ class NotificationService
         return false;
     }
 
-    public function sendSmsNotification($message, $recipient)
+    public function sendSmsNotification($recipient, $message)
     {
         foreach ($this->smsProviders as $smsProviderClass) {
             //TODO: you can get rid of this try catch here or in the providers
