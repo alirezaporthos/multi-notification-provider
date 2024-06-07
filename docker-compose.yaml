@@ -14,7 +14,7 @@ services:
     volumes:
       - ./:/var/www
     networks:
-      - customer
+      - alopeyk-notifications
   nginx:
     image: nginx:alpine
     container_name: nginx-alopeyk
@@ -25,7 +25,13 @@ services:
       - ./:/var/www
       - ./docker-compose/nginx:/etc/nginx/conf.d/
     networks:
-      - customer
+      - alopeyk-notifications
+  redis:
+    image: redis:latest
+    container_name: redis-alopeyk
+    restart: unless-stopped
+    networks:
+      - alopeyk-notifications
 networks:
-  customer:
+  alopeyk-notifications:
     driver: bridge
