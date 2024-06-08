@@ -5,54 +5,64 @@ namespace App\Http\Actions;
 use App\DataTransferObjects\SendNotificationToUserDTO;
 use App\Models\User;
 use App\Services\PorthosNotification\NotificationService;
+use Illuminate\Support\Facades\Cache;
 
 class SendNotificationAction
 {
-    //TODO you can abstract this service
+    //TODO the user notificition prefrennces shouldn't be an array
+    //TODO think for another better way, maybe make it auto using provider ... , it's not checking other types right now
+    //TODO this should be sth like this -> $this->service->sendEmailNotification($user->getEmailNotificationRoute());
+
     public function __construct(private NotificationService $service)
     {
     }
 
-    public function execute(SendNotificationToUserDTO $dto)
+    public function execute(SendNotificationToUserDTO $dto): void
     {
-        $user = User::findOrFail($dto->userId);
+        $user = $this->getUserById($dto->userId);
+        $providerType = $this->resolvePreferredNotificationType($user, $dto);
 
-        if (!is_null($dto->preferredNotificationType)) {
-            //TODO think for another better way, maybe make it auto using provider ... , it's not checking other types right now
-
-            //TODO the user notificition prefrennces shouldn't be an array
-            $userPrefrence = $user->prefrence;
-            $providerType = $userPrefrence->notification_prefrences ?
-                $userPrefrence->notification_prefrences[0] :
-                config('porthos-notification-service.default_provider_type');
-
-            if ($providerType === 'email') {
-                //TODO this should be sth like this -> $this->service->sendEmailNotification($user->getEmailNotificationRoute());
-                return $this->service->sendEmailNotification(
-                    recipient: $user->email,
-                    subject: 'email',
-                    body: $dto->messageContent
-                );
-            } elseif ($providerType === 'sms') {
-                return $this->service->sendSmsNotification(
-                    recipient: $user->email,
-                    message: $dto->messageContent
-                );
-            }
-        }
-
-        //TODO check user prefrence
-        if ($dto->preferredNotificationType === 'email') {
-            return $this->service->sendEmailNotification(
+        if ($providerType === 'email') {
+            $this->service->sendEmailNotification(
                 recipient: $user->email,
                 subject: 'email',
                 body: $dto->messageContent
             );
-        } elseif ($dto->preferredNotificationType === 'sms') {
-            return $this->service->sendSmsNotification(
+        } elseif ($providerType === 'sms') {
+            $this->service->sendSmsNotification(
                 recipient: $user->email,
                 message: $dto->messageContent
             );
         }
+    }
+
+    private function getUserById(int $userId): User
+    {
+        return User::findOrFail($userId);
+    }
+
+    private function resolvePreferredNotificationType(User $user, SendNotificationToUserDTO $dto): string
+    {
+        if ($dto->preferredNotificationType) {
+            return $dto->preferredNotificationType;
+        }
+
+        $cachedPreferences = Cache::getOrPut("user:{$user->id}:notification_preferences", function () use ($user) {
+            return $this->getUserPreference($user);
+        });
+
+        return $cachedPreferences[0] ?? $this->getDefaultProviderType();
+    }
+
+    private function getUserPreference(User $user): array
+    {
+        $preferences = $user->preference->notification_preferences;
+        Cache::put("user:{$user->id}:notification_preferences", $preferences, now()->addHours(24));
+        return $preferences;
+    }
+
+    private function getDefaultProviderType(): string
+    {
+        return config('porthos-notification-service.default_provider_type');
     }
 }
